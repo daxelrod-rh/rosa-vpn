@@ -15,3 +15,7 @@ Create VM "ipsec" in "vpn-infra"
 
 On "ipsec"
     sudo yum install -y libreswan
+    Add contents of files/ipsec/etc/ipsec.d/aws.conf to ipsec:/etc/ipsec.d/aws.conf
+    Create ipsec:/etc/ipsec.d/aws.secrets with secret from AWS's config
+    sudo systemctl enable ipsec
+    sudo systemctl start ipsec
