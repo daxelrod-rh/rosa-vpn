@@ -19,3 +19,6 @@ On "ipsec"
     Create ipsec:/etc/ipsec.d/aws.secrets with secret from AWS's config
     sudo systemctl enable ipsec
     sudo systemctl start ipsec
+    nmcli con add type ethernet ifname enp2s0 con-name cudn ipv4.addresses 192.168.1.10/24 ipv4.method manual autoconnect yes
+    nmcli con mod cudn 802-3-ethernet.mtu 1400
+    nmcli con up cudn
