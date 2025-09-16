@@ -1,0 +1,25 @@
+apiVersion: project.openshift.io/v1
+kind: Project
+metadata:
+  name: vpn-infra
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ipsec
+  namespace: vpn-infra
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: nlb
+spec:
+  selector:
+    vm.kubevirt.io/name: vpn-machine
+  type: LoadBalancer
+  ports:
+    - name: ike
+      protocol: UDP
+      port: 500
+      targetPort: 500
+    - name: ipsec-nat-traversal
+      protocol: UDP
+      port: 4500
+      targetPort: 4500

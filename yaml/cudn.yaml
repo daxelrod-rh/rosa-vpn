@@ -1,0 +1,19 @@
+apiVersion: k8s.ovn.org/v1
+kind: ClusterUserDefinedNetwork
+metadata:
+  name: vm-network
+spec:
+  namespaceSelector:
+    matchExpressions:
+      - key: kubernetes.io/metadata.name
+        operator: In
+        values:
+          - vpn-infra
+          - vm-workloads
+  network:
+    layer2:
+      role: Secondary
+      ipam:
+        mode: Disabled
+    topology: Layer2
+

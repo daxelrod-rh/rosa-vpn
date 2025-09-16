@@ -1,0 +1,17 @@
+First apply pre-vpn
+oc apply -f yaml/service.yml
+oc describe service ipsec -n vpn-infra
+# Look for LoadBalancer Ingress
+nslookup above ingress
+Put IP in VPN part of terraform
+oc apply -f yaml/1-virt-operator.yaml
+oc apply -f yaml/2-virt-hyperconverged.yaml
+oc apply -f yaml/cudn.yaml
+Create VM "ipsec" in "vpn-infra"
+    centos stream 10
+    network -> Add network interface
+        Name cudn
+        Network: vm-network
+
+On "ipsec"
+    sudo yum install -y libreswan
