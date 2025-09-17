@@ -88,6 +88,10 @@ Troubleshooting steps
     # SELinux labels
     sudo restorecon -Rv /etc/ipsec.conf /etc/ipsec.secrets /etc/ipsec.d >/dev/null
 
+Fix CGW
+    Terraform configuration of the CGW was wrong. It should actually have the IP that traffic egresses from the NAT gateway with.
+    Deleted that CGW and created a new one with the correct IP to attach to the VPN, cgw-01023e1c77d224fd6 / daxelrod-v7-cgw2
+
 
 
 
