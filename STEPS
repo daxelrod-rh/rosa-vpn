@@ -22,3 +22,79 @@ On "ipsec"
     nmcli con add type ethernet ifname enp2s0 con-name cudn ipv4.addresses 192.168.1.10/24 ipv4.method manual autoconnect yes
     nmcli con mod cudn 802-3-ethernet.mtu 1400
     nmcli con up cudn
+
+    **ip forwarding**
+
+    #runtime
+    sudo sysctl -w net.ipv4.ip_forward=1
+
+    #persist
+    echo "net.ipv4.ip_forward=1" | sudo tee /etc/sysctl.d/91-ip-forward.conf >/dev/null
+    sudo sysctl -p /etc/sysctl.d/91-ip-forward.conf
+
+    
+    **ensure that RPF is loose on both NICs + global**
+    
+    #runtime
+    sudo sysctl -w net.ipv4.conf.all.rp_filter=2
+    sudo sysctl -w net.ipv4.conf.default.rp_filter=2
+    sudo sysctl -w net.ipv4.conf.enp1s0.rp_filter=2   # AWS side NIC
+
+    #persist
+    echo -e "net.ipv4.conf.all.rp_filter=2\nnet.ipv4.conf.default.rp_filter=2\nnet.ipv4.conf.enp1s0.rp_filter=2\nnet.ipv4.conf.enp2s0.rp_filter=2" | sudo tee /etc/sysctl.d/90-multihome.conf >/dev/null
+    sudo sysctl -p /etc/sysctl.d/90-multihome.conf
+
+    #restart
+    sudo systemctl restart ipsec
+
+
+    **add return route on the CUDN side**
+    make sure the CUDN router/host has "ip route add 10.10.0.0/16 via 192.168.1.10" (without the return path, pings will fail even if the AWS side is perfect)
+
+
+On cluster
+
+    **find nodeports**
+    ruun "oc -n vpn-infra get svc ipsec -o jsonpath='{range .spec.ports[*]}{.name}:{.port}->{.nodePort}{"\n"}{end}'"
+
+On AWS Console
+
+    **adjust route tables on the VPC**
+    make sure that AWS VPN shows a route to 192.168.1.0/24 and your VPC route table has a propagated/explicit route to that prefix via the VGW (be sure to add this IP on every route table, incl. private/public one(s), and choose the correspondent virtual gateway)
+
+    **adjust security groups**
+    add inbound rules as follows:
+    - UDP <nodePort-for-500> from 18.204.200.100/32, 52.20.28.136/32 (tunnel outside IPs) 
+    - UDP <nodePort-for-4500> from the same sources 
+    - allow from the VPC CIDR for NLB health checks (?)
+    - ICMP from CUDN (192.168.1.0/24) 
+    - TCP 22 (optional, for ssh) from CUDN
+    - TCP 80 (to curl httpd) from CUDN
+    - TCP 30000–32767 from CUDN
+
+
+Troubleshooting steps
+
+    # remove no-op route
+    sudo ip route del 10.10.0.0/16 || true
+
+    # remove Windows CRLF just in case
+    sudo sed -i -e 's/\r$//' /etc/ipsec.conf /etc/ipsec.secrets /etc/ipsec.d/*.conf /etc/ipsec.d/*.secrets 2>/dev/null
+
+    # perms
+    sudo chmod 644 /etc/ipsec.d/*.conf 2>/dev/null || true
+    sudo chmod 600 /etc/ipsec.secrets /etc/ipsec.d/*.secrets 2>/dev/null || true
+
+    # SELinux labels
+    sudo restorecon -Rv /etc/ipsec.conf /etc/ipsec.secrets /etc/ipsec.d >/dev/null
+
+
+
+
+
+
+
+
+
+
+
