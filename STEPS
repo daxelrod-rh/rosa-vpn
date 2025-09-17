@@ -88,6 +88,19 @@ Troubleshooting steps
     # SELinux labels
     sudo restorecon -Rv /etc/ipsec.conf /etc/ipsec.secrets /etc/ipsec.d >/dev/null
 
+    # relax RP filter
+    echo -e "net.ipv4.conf.all.rp_filter=0\nnet.ipv4.conf.default.rp_filter=0" | sudo tee /etc/sysctl.d/99-ipsec.conf
+    sudo sysctl -p /etc/sysctl.d/99-ipsec.conf
+
+
+Generic steps:
+1. Create CGW matching cluster's egress IP (login to cluster and run "curl -s https://checkip.amazonaws.com | tr -d '\r'")
+2. Create VGW and attach it to ROSA VPC
+3. Create VPN S2S
+4. Create CUDN VM
+5. Create EC2 (or bastion) host if not already:
+    - Create a dedicated SG where for the inbound rule: type All ICMP – IPv4, Source 192.168.1.0/24 (you can tighten later). Egress is usually “All traffic / 0.0.0.0/0” by default — that’s fine.
+
 
 
 
