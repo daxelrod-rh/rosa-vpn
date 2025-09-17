@@ -63,7 +63,7 @@ On AWS Console
     make sure that AWS VPN shows a route to 192.168.1.0/24 and your VPC route table has a propagated/explicit route to that prefix via the VGW (be sure to add this IP on every route table, incl. private/public one(s), and choose the correspondent virtual gateway)
 
     **adjust security groups**
-    add inbound rules as follows:
+    add inbound rules as follows to the default worker security group
     - UDP <nodePort-for-500> from 18.204.200.100/32, 52.20.28.136/32 (tunnel outside IPs) 
     - UDP <nodePort-for-4500> from the same sources 
     - allow from the VPC CIDR for NLB health checks (?)
