@@ -105,3 +105,13 @@ Generic steps:
 4. Create CUDN VM
 5. Create EC2 (or bastion) host if not already:
     - Create a dedicated SG where for the inbound rule: type All ICMP – IPv4, Source 192.168.1.0/24 (you can tighten later). Egress is usually “All traffic / 0.0.0.0/0” by default — that’s fine.
+
+Create VM "other-host" in "vpn-infra"
+    centos stream 10
+    network -> Add network interface
+        Name cudn
+        Network: vm-network
+
+
+    nmcli con add type ethernet ifname enp2s0 con-name cudn 1pv4.addresses 192.168.1.20/24 ipv4.method manual autoconnect yes
+    sudo ip route add 10.10.0.0/16 via 192.168.1.10
