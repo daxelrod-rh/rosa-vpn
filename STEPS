@@ -63,7 +63,7 @@ On AWS Console
     make sure that AWS VPN shows a route to 192.168.1.0/24 and your VPC route table has a propagated/explicit route to that prefix via the VGW (be sure to add this IP on every route table, incl. private/public one(s), and choose the correspondent virtual gateway)
 
     **adjust security groups**
-    add inbound rules as follows:
+    add inbound rules as follows to the default worker security group
     - UDP <nodePort-for-500> from 18.204.200.100/32, 52.20.28.136/32 (tunnel outside IPs) 
     - UDP <nodePort-for-4500> from the same sources 
     - allow from the VPC CIDR for NLB health checks (?)
@@ -91,7 +91,12 @@ Troubleshooting steps
     # relax RP filter
     echo -e "net.ipv4.conf.all.rp_filter=0\nnet.ipv4.conf.default.rp_filter=0" | sudo tee /etc/sysctl.d/99-ipsec.conf
     sudo sysctl -p /etc/sysctl.d/99-ipsec.conf
+    
+Fix VPN
+    Terraform configuration of the CGW was wrong. It should actually have the IP that traffic egresses from the NAT gateway with.
+    Deleted that CGW and created a new one with the correct IP to attach to the VPN, cgw-01023e1c77d224fd6 / daxelrod-v7-cgw2
 
+    Modified VPN so that Local IPv$ network CIDR is 192.168.1.0/24 and Remote is 10.10.0.0/16 , these were backwards in the Terraform
 
 Generic steps:
 1. Create CGW matching cluster's egress IP (login to cluster and run "curl -s https://checkip.amazonaws.com | tr -d '\r'")
@@ -100,14 +105,3 @@ Generic steps:
 4. Create CUDN VM
 5. Create EC2 (or bastion) host if not already:
     - Create a dedicated SG where for the inbound rule: type All ICMP – IPv4, Source 192.168.1.0/24 (you can tighten later). Egress is usually “All traffic / 0.0.0.0/0” by default — that’s fine.
-
-
-
-
-
-
-
-
-
-
-
