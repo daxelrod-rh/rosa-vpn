@@ -145,3 +145,16 @@ Create cert based VPN
     Create CGW
         Pick that cert
         Do not enter an IP address
+
+    Create (or modify) S2S VPN
+        Target the TGW
+    
+    Update the libreswan config
+        Cert auth (see v3 conf)
+
+    Quick sanity test
+        sudo ipsec addconn --checkconfig || true
+        sudo systemctl restart ipsec
+        sudo journalctl -u ipsec -f
+
+
