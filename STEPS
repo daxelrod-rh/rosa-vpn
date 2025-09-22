@@ -115,3 +115,33 @@ Create VM "other-host" in "vpn-infra"
 
     nmcli con add type ethernet ifname enp2s0 con-name cudn 1pv4.addresses 192.168.1.20/24 ipv4.method manual autoconnect yes
     sudo ip route add 10.10.0.0/16 via 192.168.1.10
+
+
+
+Create cert based VPN
+    Create CA
+        General purpose (ACM cannot use anything else)
+        Root
+        Algorithm RSA 2048
+        No revocation checked
+        "Authorize ACM access to renew certificates requested by this account"
+
+    Create subordinate CA
+        General purpose
+        subordinate
+        Alg RSA 2048
+
+        Then install cert
+           select root CA as parent private CA
+           must be valid for 13 months per AWS docs
+           path length 0
+
+     Create cert
+        FQDN vpn.daxelrod.mobb.ninja
+        RSA 2048
+        I understand ACM will not be able to renew without necessary perms
+        From subordinate CA
+
+    Create CGW
+        Pick that cert
+        Do not enter an IP address
