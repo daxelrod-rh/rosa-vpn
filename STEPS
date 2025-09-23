@@ -159,9 +159,12 @@ Create cert based VPN
             PKICertImport -d . -n "daxelrod.mobb.ninja Root" -t "CT,C,C" -a -i /home/centos/vpn.daxelrod.mobb.ninja.root -u L
             PKICertImport -d . -n "subordinate.daxelrod.mobb.ninja subordinate" -t "CT,C,C" -a -i /home/centos/subordinate.daxelrod.mobb.ninja -u L
 
-        Import the private key into the NSS database (for all key passwords, used the password for the centos user on this vm)
+        Import the private key into the ipsec database (for all key passwords, used the password for the centos user on this vm)
             openssl pkcs12 -export -in /home/centos/vpn.daxelrod.mobb.ninja.pem -inkey /home/centos/vpn.daxelrod.mobb.ninja.key -out /home/centos/vpn.daxelrod.mobb.ninja.p12 -name daxelrod-v7-cert-cgw
             ipsec import /home/centos/vpn.daxelrod.mobb.ninja.p12
+
+        Import the public key part of the keypair into the NSS database
+            PKICertImport -d . -n "daxelrod-v7-cert" -t ",," -a -i /home/centos/vpn.daxelrod.mobb.ninja.pem -u C
     
     Update the libreswan config
         Cert auth (see v3 conf)
